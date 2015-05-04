@@ -5,18 +5,12 @@
 
 """
 
-
-
-
 import pickle
 import numpy
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
-
-
-
 
 def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature 1", f2_name="feature 2"):
     """ some plotting code designed to help you visualize your clusters """
@@ -37,18 +31,28 @@ def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature
     plt.savefig(name)
     plt.show()
 
-
-
 ### load in the dict of dicts containing all the data on each person in the dataset
 data_dict = pickle.load( open("../final_project/final_project_dataset.pkl", "r") )
 ### there's an outlier--remove it! 
 data_dict.pop("TOTAL", 0)
 
+min = 100000000
+max = 0
+for feature in data_dict.itervalues():
+  options = feature["salary"]
+  if options == "NaN":
+    continue
+  if options < min:
+    min = options
+  if options > max:
+    max = options
+print min, max
 
 ### the input features we want to use 
 ### can be any key in the person-level dictionary (salary, director_fees, etc.) 
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
+feature_3 = "total_payments"
 poi  = "poi"
 features_list = [poi, feature_1, feature_2]
 data = featureFormat(data_dict, features_list )
@@ -64,11 +68,7 @@ for f1, f2 in finance_features:
 plt.show()
 
 
-
 from sklearn.cluster import KMeans
-features_list = ["poi", feature_1, feature_2]
-data2 = featureFormat(data_dict, features_list )
-poi, finance_features = targetFeatureSplit( data2 )
 clf = KMeans(n_clusters=2)
 pred = clf.fit_predict( finance_features )
 Draw(pred, finance_features, poi, name="clusters_before_scaling.pdf", f1_name=feature_1, f2_name=feature_2)
@@ -76,13 +76,21 @@ Draw(pred, finance_features, poi, name="clusters_before_scaling.pdf", f1_name=fe
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
+from sklearn import preprocessing
+import numpy as np
+# Convert data to floats to be used in numpy
+for i in range(len(finance_features)):
+  for j in range(len(finance_features[i])):
+    if finance_features[i][j] == "NaN":
+      finance_features[i][j] = 0.0
+    else:
+      finance_features[i][j] = float(finance_features[i][j])
+features_train = np.array(finance_features)
+min_max_scaler = preprocessing.MinMaxScaler()
+features_train_minmax = min_max_scaler.fit_transform(features_train)
+pred = clf.fit_predict(features_train_minmax)
 
 try:
     Draw(pred, finance_features, poi, mark_poi=False, name="clusters.pdf", f1_name=feature_1, f2_name=feature_2)
 except NameError:
     print "no predictions object named pred found, no clusters to plot"
-
-
-
-
-
