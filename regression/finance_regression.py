@@ -37,11 +37,14 @@ test_color = "r"
 ### your regression goes here!
 ### please name it reg, so that the plotting code below picks it up and 
 ### plots it correctly
+from sklearn import linear_model
+reg = linear_model.LinearRegression()
+reg.fit(feature_train, target_train)
 
-
-
-
-
+print "Slope is", reg.coef_   # 5.44814029
+print "Intercept is", reg.intercept_  # -102360.543294
+print "Score of training data is", reg.score(feature_train, target_train) # 0.0455091926995
+print "Score of test data is", reg.score(feature_test, target_test) # -1.48499241737
 
 
 
@@ -64,6 +67,9 @@ try:
     plt.plot( feature_test, reg.predict(feature_test) )
 except NameError:
     pass
+reg.fit(feature_test, target_test)
+print "Slope of test data is", reg.coef_  # 2.27410114
+plt.plot(feature_train, reg.predict(feature_train), color="r")
 plt.xlabel(features_list[1])
 plt.ylabel(features_list[0])
 plt.legend()
