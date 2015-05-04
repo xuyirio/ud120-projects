@@ -5,23 +5,35 @@ import pickle
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
-from tester import test_classifier, dump_classifier_and_data
+#from tester import test_classifier, dump_classifier_and_data
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-features_list = ['poi','salary'] # You will need to use more features
+### You will need to use more features
+features_list = ['poi','salary', 'total_payments', 'exercised_stock_options']
 
 ### Load the dictionary containing the dataset
 data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
 
+
 ### Task 2: Remove outliers
+data_dict.pop("TOTAL", 0)
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
+
+import matplotlib.pyplot
+for point in data:
+  matplotlib.pyplot.scatter( point[0], point[1] )
+
+matplotlib.pyplot.xlabel("poi")
+matplotlib.pyplot.ylabel("salary")
+matplotlib.pyplot.show()
+
 labels, features = targetFeatureSplit(data)
 
 ### Task 4: Try a varity of classifiers
@@ -39,9 +51,9 @@ clf = GaussianNB()    # Provided to give you a starting point. Try a varity of c
 ### shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
-test_classifier(clf, my_dataset, features_list)
+#test_classifier(clf, my_dataset, features_list)
 
 ### Dump your classifier, dataset, and features_list so 
 ### anyone can run/check your results.
 
-dump_classifier_and_data(clf, my_dataset, features_list)
+#dump_classifier_and_data(clf, my_dataset, features_list)
